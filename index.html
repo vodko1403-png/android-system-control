@@ -2,93 +2,49 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Android Control</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --accent: #58a6ff; --text: #c9d1d9; --green: #238636; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
-        .tabs { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 15px; padding-bottom: 5px; }
-        .tab-btn { white-space: nowrap; padding: 8px 15px; background: #21262d; border: 1px solid #30363d; color: #8b949e; border-radius: 6px; cursor: pointer; }
-        .tab-btn.active { background: var(--card); color: var(--accent); border-color: var(--accent); }
-        .content { display: none; background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid #30363d; animation: fadeIn 0.3s; }
-        .content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        textarea, input { width: 100%; background: #0d1117; color: #fff; border: 1px solid #30363d; padding: 10px; border-radius: 6px; box-sizing: border-box; margin-bottom: 10px; }
-        button.main-btn { width: 100%; padding: 12px; background: var(--green); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .stat-box { background: #21262d; padding: 10px; border-radius: 6px; text-align: center; font-size: 12px; }
+        body { font-family: sans-serif; background-color: #1c1c1c; color: white; margin: 0; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .section-title { font-size: 14px; color: #888; text-transform: uppercase; margin-top: 10px; }
+        button { background-color: #2b2b2b; color: white; border: 1px solid #444; padding: 15px 10px; border-radius: 12px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        button:active { background-color: #444; transform: scale(0.95); }
+        .btn-main { background: linear-gradient(135deg, #28a745, #1e7e34); grid-column: span 2; font-weight: bold; }
+        .btn-danger { background: linear-gradient(135deg, #dc3545, #a71d2a); }
     </style>
 </head>
 <body>
-    <div class="tabs">
-        <button class="tab-btn active" onclick="openTab('notes')">📝 Нотатки</button>
-        <button class="tab-btn" onclick="openTab('timer')">⏳ Таймери</button>
-        <button class="tab-btn" onclick="openTab('remind')">🔔 Нагадування</button>
-        <button class="tab-btn" onclick="openTab('system')">📊 Система</button>
+    <div class="section-title">Основне керування</div>
+    <div class="grid">
+        <button class="btn-main" onclick="send('🚀 ПУСК')">🚀 ПУСК</button>
+        <button onclick="send('🧠 AI ЧАТ')">🧠 AI ЧАТ</button>
+        <button onclick="send('🌍 СИСТЕМА')">🌍 СИСТЕМА</button>
     </div>
 
-    <div id="notes" class="content active">
-        <h3>Новий запис</h3>
-        <textarea id="noteText" placeholder="Текст нотатки..."></textarea>
-        <button class="main-btn" onclick="sendToBot('note')">Зберегти</button>
+    <div class="section-title">Файли та Медіа</div>
+    <div class="grid">
+        <button onclick="send('📁 ФАЙЛИ')">📁 ФАЙЛИ</button>
+        <button onclick="send('📩 ЗАВАНТАЖИТИ')">📩 ЗАВАНТАЖИТИ</button>
+        <button onclick="send('🌊 ТОРРЕНТ')">🌊 ТОРРЕНТ</button>
+        <button onclick="send('📊 СТАТИСТИКА')">📊 СТАТИСТИКА</button>
     </div>
 
-    <div id="timer" class="content">
-        <h3>Планувальник</h3>
-        <input type="time" id="timerTime">
-        <input type="text" id="timerTask" placeholder="Назва завдання">
-        <button class="main-btn" onclick="sendToBot('timer')">Встановити</button>
-    </div>
-
-    <div id="remind" class="content">
-        <h3>Нагадування</h3>
-        <input type="datetime-local" id="remindTime">
-        <textarea id="remindText" placeholder="Про що нагадати?"></textarea>
-        <button class="main-btn" onclick="sendToBot('remind')">Створити</button>
-    </div>
-
-    <div id="system" class="content">
-        <h3>Стан Android</h3>
-        <canvas id="ramChart"></canvas>
-        <div class="status-grid">
-            <div class="stat-box">CPU: <span id="cpuVal">--</span>%</div>
-            <div class="stat-box">RAM: <span id="ramVal">--</span>%</div>
-        </div>
+    <div class="section-title">Система</div>
+    <div class="grid">
+        <button onclick="send('🧹 ОЧИЩЕННЯ')">🧹 ОЧИЩЕННЯ</button>
+        <button onclick="send('📟 КОНСОЛЬ')">📟 КОНСОЛЬ</button>
+        <button class="btn-danger" onclick="send('💀 ВИМКНУТИ')">💀 ВИМКНУТИ</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-
-        function openTab(name) {
-            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(name).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        function sendToBot(type) {
-            let data = { type: type };
-            if (type === 'note') data.val = document.getElementById('noteText').value;
-            if (type === 'timer') data.val = { time: document.getElementById('timerTime').value, task: document.getElementById('timerTask').value };
-            if (type === 'remind') data.val = { time: document.getElementById('remindTime').value, text: document.getElementById('remindText').value };
-            
-            tg.sendData(JSON.stringify(data));
+        function send(cmd) {
+            tg.sendData(cmd); // Надсилає команду боту
             tg.close();
         }
-
-        // Графік завантаження (імітація для візувалу)
-        const ctx = document.getElementById('ramChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['5с', '4с', '3с', '2с', '1с', '0с'],
-                datasets: [{ label: 'Завантаження %', data: [30, 45, 38, 55, 42, 48], borderColor: '#58a6ff', tension: 0.4 }]
-            }
-        });
     </script>
 </body>
 </html>
