@@ -2,49 +2,328 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Android Control</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пульт керування Android</title>
     <style>
-        body { font-family: sans-serif; background-color: #1c1c1c; color: white; margin: 0; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .section-title { font-size: 14px; color: #888; text-transform: uppercase; margin-top: 10px; }
-        button { background-color: #2b2b2b; color: white; border: 1px solid #444; padding: 15px 10px; border-radius: 12px; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        button:active { background-color: #444; transform: scale(0.95); }
-        .btn-main { background: linear-gradient(135deg, #28a745, #1e7e34); grid-column: span 2; font-weight: bold; }
-        .btn-danger { background: linear-gradient(135deg, #dc3545, #a71d2a); }
+        /* Скидання стилів */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--tg-theme-bg-color, #f5f5f5);
+            color: var(--tg-theme-text-color, #333);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        /* Контейнер */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Заголовок */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--tg-theme-secondary-bg-color, #fff);
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--tg-theme-button-color, #40a7e3);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Сітка кнопок */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* Кнопки */
+        .btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 12px;
+            background: var(--tg-theme-button-color, #40a7e3);
+            color: var(--tg-theme-button-text-color, #fff);
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            text-align: center;
+            min-height: 100px;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+            opacity: 0.9;
+        }
+
+        .btn span {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        /* Кнопка на весь рядок */
+        .btn.full-width {
+            grid-column: span 2;
+            flex-direction: row;
+            gap: 12px;
+            min-height: 70px;
+        }
+
+        .btn.full-width span {
+            margin-bottom: 0;
+            font-size: 28px;
+        }
+
+        /* Індикатор статусу */
+        .status {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--tg-theme-secondary-bg-color, #fff);
+            border-radius: 20px;
+            font-size: 14px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .status.success {
+            color: #00b894;
+            font-weight: 600;
+        }
+
+        .status.error {
+            color: #d63031;
+        }
+
+        /* Адаптація для темної теми */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1c1c1e;
+                color: #fff;
+            }
+            .header, .status {
+                background: #2c2c2e;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="section-title">Основне керування</div>
-    <div class="grid">
-        <button class="btn-main" onclick="send('🚀 ПУСК')">🚀 ПУСК</button>
-        <button onclick="send('🧠 AI ЧАТ')">🧠 AI ЧАТ</button>
-        <button onclick="send('🌍 СИСТЕМА')">🌍 СИСТЕМА</button>
+    <div class="container">
+        <!-- Шапка -->
+        <div class="header">
+            <h1>🎮 ПУЛЬТ КЕРУВАННЯ</h1>
+            <p>Натискайте кнопки, щоб виконати команди в боті</p>
+        </div>
+
+        <!-- ВСІ КНОПКИ З ГОЛОВНОГО МЕНЮ (окрім самої кнопки пульта) -->
+        <div class="grid">
+            <!-- Рядок 1: AI ЧАТ, СИСТЕМА -->
+            <button class="btn" onclick="sendCommand('🧠 AI ЧАТ')">
+                <span>🧠</span>
+                AI ЧАТ
+            </button>
+            <button class="btn" onclick="sendCommand('🌍 СИСТЕМА')">
+                <span>🌍</span>
+                СИСТЕМА
+            </button>
+
+            <!-- Рядок 2: ФАЙЛИ, ЗАВАНТАЖИТИ -->
+            <button class="btn" onclick="sendCommand('📁 ФАЙЛИ')">
+                <span>📁</span>
+                ФАЙЛИ
+            </button>
+            <button class="btn" onclick="sendCommand('📩 ЗАВАНТАЖИТИ')">
+                <span>📩</span>
+                ЗАВАНТАЖИТИ
+            </button>
+
+            <!-- Рядок 3: БЛОКНОТ, НАГАДУВАННЯ -->
+            <button class="btn" onclick="sendCommand('📝 БЛОКНОТ')">
+                <span>📝</span>
+                БЛОКНОТ
+            </button>
+            <button class="btn" onclick="sendCommand('📌 НАГАДУВАННЯ')">
+                <span>📌</span>
+                НАГАДУВАННЯ
+            </button>
+
+            <!-- Рядок 4: ТАЙМЕР, СКРИПТИ -->
+            <button class="btn" onclick="sendCommand('⏳ ТАЙМЕР')">
+                <span>⏳</span>
+                ТАЙМЕР
+            </button>
+            <button class="btn" onclick="sendCommand('⚡ СКРИПТИ')">
+                <span>⚡</span>
+                СКРИПТИ
+            </button>
+
+            <!-- Рядок 5: ТОРРЕНТ (замість пульта), НОВИНИ -->
+            <button class="btn" onclick="sendCommand('🌊 ТОРРЕНТ')">
+                <span>🌊</span>
+                ТОРРЕНТ
+            </button>
+            <button class="btn" onclick="sendCommand('📰 НОВИНИ')">
+                <span>📰</span>
+                НОВИНИ
+            </button>
+
+            <!-- Рядок 6: ВІКІПЕДІЯ, СТАТИСТИКА -->
+            <button class="btn" onclick="sendCommand('📚 ВІКІПЕДІЯ')">
+                <span>📚</span>
+                ВІКІПЕДІЯ
+            </button>
+            <button class="btn" onclick="sendCommand('📊 СТАТИСТИКА')">
+                <span>📊</span>
+                СТАТИСТИКА
+            </button>
+
+            <!-- Рядок 7: МОНІТОРИНГ, ЛОГ -->
+            <button class="btn" onclick="sendCommand('🛰 МОНІТОРИНГ')">
+                <span>🛰</span>
+                МОНІТОРИНГ
+            </button>
+            <button class="btn" onclick="sendCommand('🗒 ЛОГ')">
+                <span>🗒</span>
+                ЛОГ
+            </button>
+
+            <!-- Рядок 8: АКТИВНІ, БЕКАПИ -->
+            <button class="btn" onclick="sendCommand('🟢 АКТИВНІ')">
+                <span>🟢</span>
+                АКТИВНІ
+            </button>
+            <button class="btn" onclick="sendCommand('📂 БЕКАПИ')">
+                <span>📂</span>
+                БЕКАПИ
+            </button>
+
+            <!-- Рядок 9: ВІДНОВИТИ, ОЧИЩЕННЯ -->
+            <button class="btn" onclick="sendCommand('⏳ ВІДНОВИТИ')">
+                <span>⏳</span>
+                ВІДНОВИТИ
+            </button>
+            <button class="btn" onclick="sendCommand('🧹 ОЧИЩЕННЯ')">
+                <span>🧹</span>
+                ОЧИЩЕННЯ
+            </button>
+
+            <!-- Рядок 10: КОНСОЛЬ, БОТ -->
+            <button class="btn" onclick="sendCommand('📟 КОНСОЛЬ')">
+                <span>📟</span>
+                КОНСОЛЬ
+            </button>
+            <button class="btn" onclick="sendCommand('🤖 БОТ')">
+                <span>🤖</span>
+                БОТ
+            </button>
+
+            <!-- Рядок 11: ПЛАГІНИ, НАЛАШТУВАННЯ -->
+            <button class="btn" onclick="sendCommand('🧩 ПЛАГІНИ')">
+                <span>🧩</span>
+                ПЛАГІНИ
+            </button>
+            <button class="btn" onclick="sendCommand('⚙️ НАЛАШТУВАННЯ')">
+                <span>⚙️</span>
+                НАЛАШТУВАННЯ
+            </button>
+
+            <!-- Рядок 12: КОМАНДИ, ДОПОМОГА -->
+            <button class="btn" onclick="sendCommand('📖 КОМАНДИ')">
+                <span>📖</span>
+                КОМАНДИ
+            </button>
+            <button class="btn" onclick="sendCommand('💡 ДОПОМОГА')">
+                <span>💡</span>
+                ДОПОМОГА
+            </button>
+
+            <!-- Рядок 13: СПОВІЩЕННЯ, ПУСК -->
+            <button class="btn" onclick="sendCommand('🔔 СПОВІЩЕННЯ')">
+                <span>🔔</span>
+                СПОВІЩЕННЯ
+            </button>
+            <button class="btn" onclick="sendCommand('🚀 ПУСК')">
+                <span>🚀</span>
+                ПУСК
+            </button>
+
+            <!-- Рядок 14: ВИМКНУТИ (на весь рядок) -->
+            <button class="btn full-width" style="background:#e84342;" onclick="sendCommand('💀 ВИМКНУТИ')">
+                <span>💀</span>
+                ВИМКНУТИ
+            </button>
+        </div>
+
+        <!-- Індикатор статусу -->
+        <div class="status" id="status">
+            ⚡ Готовий до роботи
+        </div>
     </div>
 
-    <div class="section-title">Файли та Медіа</div>
-    <div class="grid">
-        <button onclick="send('📁 ФАЙЛИ')">📁 ФАЙЛИ</button>
-        <button onclick="send('📩 ЗАВАНТАЖИТИ')">📩 ЗАВАНТАЖИТИ</button>
-        <button onclick="send('🌊 ТОРРЕНТ')">🌊 ТОРРЕНТ</button>
-        <button onclick="send('📊 СТАТИСТИКА')">📊 СТАТИСТИКА</button>
-    </div>
-
-    <div class="section-title">Система</div>
-    <div class="grid">
-        <button onclick="send('🧹 ОЧИЩЕННЯ')">🧹 ОЧИЩЕННЯ</button>
-        <button onclick="send('📟 КОНСОЛЬ')">📟 КОНСОЛЬ</button>
-        <button class="btn-danger" onclick="send('💀 ВИМКНУТИ')">💀 ВИМКНУТИ</button>
-    </div>
-
+    <!-- Підключення Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Ініціалізація Telegram WebApp
         const tg = window.Telegram.WebApp;
+        
+        // Розгортаємо на весь екран
         tg.expand();
-        function send(cmd) {
-            tg.sendData(cmd); // Надсилає команду боту
-            tg.close();
+
+        // Функція надсилання команди
+        function sendCommand(command) {
+            // Показуємо статус
+            const statusEl = document.getElementById('status');
+            statusEl.className = 'status';
+            statusEl.innerHTML = `⏳ Надсилаю: ${command}...`;
+
+            // Надсилаємо дані боту
+            tg.sendData(command);
+
+            // Показуємо сповіщення про успіх
+            statusEl.className = 'status success';
+            statusEl.innerHTML = `✅ Команда "${command}" виконана!`;
+            
+            // Можна закрити WebApp після надсилання (розкоментуйте, якщо треба)
+            // setTimeout(() => tg.close(), 500);
         }
+
+        // Налаштування кольорів відповідно до теми Telegram
+        document.body.style.backgroundColor = tg.themeParams.bg_color || '#f5f5f5';
+        document.body.style.color = tg.themeParams.text_color || '#333';
+        
+        // Змінюємо колір фону кнопок на основний колір теми (але можна залишити різні кольори в CSS)
+        // const buttons = document.querySelectorAll('.btn');
+        // buttons.forEach(btn => {
+        //     btn.style.backgroundColor = tg.themeParams.button_color || '#40a7e3';
+        //     btn.style.color = tg.themeParams.button_text_color || '#fff';
+        // });
     </script>
 </body>
-</html>
+                </html>
