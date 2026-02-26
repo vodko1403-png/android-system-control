@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🚀 Android System Control</title>
+    <title>🚀 Android System Control PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -18,52 +18,52 @@
             padding: 12px;
             min-height: 100vh;
         }
-        .tabs {
+        /* Навігація */
+        .nav {
             display: flex;
-            background: var(--tg-theme-secondary-bg-color, #161b22);
-            border-radius: 30px;
-            padding: 4px;
-            margin-bottom: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            margin-bottom: 8px;
+            scrollbar-width: none;
         }
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px 0;
+        .nav::-webkit-scrollbar { display: none; }
+        .nav-item {
+            padding: 10px 18px;
+            background: var(--tg-theme-secondary-bg-color, #161b22);
+            border: 1px solid var(--tg-theme-hint-color, #30363d);
+            border-radius: 30px;
+            font-size: 14px;
             font-weight: 600;
-            border-radius: 26px;
+            white-space: nowrap;
+            color: var(--tg-theme-text-color, #c9d1d9);
             cursor: pointer;
             transition: 0.2s;
-            font-size: 14px;
         }
-        .tab.active {
+        .nav-item.active {
             background: var(--tg-theme-button-color, #238636);
             color: var(--tg-theme-button-text-color, #ffffff);
+            border-color: var(--tg-theme-button-color, #238636);
         }
-        .content {
+        /* Секції */
+        .section {
             display: none;
-            animation: fade 0.3s;
+            animation: fade 0.3s ease;
         }
-        .content.active {
-            display: block;
-        }
-        @keyframes fade {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .section.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Картки */
         .card {
             background: var(--tg-theme-secondary-bg-color, #161b22);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 16px;
             border: 1px solid var(--tg-theme-hint-color, #30363d);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
         }
         .card-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -78,8 +78,8 @@
             background: #21262d;
             border: 1px solid var(--tg-theme-hint-color, #30363d);
             color: var(--tg-theme-text-color, #c9d1d9);
-            padding: 14px;
-            border-radius: 14px;
+            padding: 12px 8px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -87,166 +87,184 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
         button:active {
-            transform: scale(0.96);
             background: #30363d;
+            transform: scale(0.97);
         }
         button.primary {
             background: var(--tg-theme-button-color, #238636);
             color: var(--tg-theme-button-text-color, #ffffff);
             border: none;
         }
+        button.danger {
+            background: transparent;
+            border: 1px solid #f85149;
+            color: #f85149;
+        }
         textarea, input {
             width: 100%;
             background: #010409;
             border: 1px solid var(--tg-theme-hint-color, #30363d);
             color: var(--tg-theme-text-color, #c9d1d9);
-            border-radius: 14px;
+            border-radius: 12px;
             padding: 14px;
             font-size: 14px;
             margin-bottom: 12px;
             box-sizing: border-box;
         }
-        .note-item {
-            background: #0d1117;
-            border-radius: 12px;
+        .status-bar {
+            margin-top: 20px;
             padding: 12px;
-            margin-bottom: 8px;
-            border-left: 3px solid var(--tg-theme-button-color, #238636);
-        }
-        .note-date {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-top: 4px;
-        }
-        .console-output {
-            background: #0d1117;
-            border-radius: 12px;
-            padding: 14px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
+            background: var(--tg-theme-secondary-bg-color, #161b22);
+            border-radius: 30px;
+            text-align: center;
+            font-size: 13px;
+            border: 1px solid var(--tg-theme-hint-color, #30363d);
         }
     </style>
 </head>
 <body>
 
-<div class="tabs" id="tabs">
-    <div class="tab active" onclick="switchTab('notes')">📝 Нотатки</div>
-    <div class="tab" onclick="switchTab('system')">⚙️ Система</div>
-    <div class="tab" onclick="switchTab('scripts')">📜 Скрипти</div>
-    <div class="tab" onclick="switchTab('console')">💻 Консоль</div>
+<!-- Навігація -->
+<div class="nav">
+    <div class="nav-item active" onclick="switchTab('dashboard')">📊 Дашборд</div>
+    <div class="nav-item" onclick="switchTab('system')">⚙️ Система</div>
+    <div class="nav-item" onclick="switchTab('tools')">🔧 Інструменти</div>
+    <div class="nav-item" onclick="switchTab('games')">🎮 Ігри</div>
+    <div class="nav-item" onclick="switchTab('console')">💻 Консоль</div>
 </div>
 
-<!-- Вкладка Нотатки -->
-<div id="notes" class="content active">
+<!-- Секція: Дашборд -->
+<div id="dashboard" class="section active">
     <div class="card">
-        <div class="card-title"><span>📓</span> Нова нотатка</div>
-        <textarea id="noteInput" rows="3" placeholder="Введіть текст..."></textarea>
-        <button class="primary" onclick="saveNote()">💾 Зберегти</button>
-    </div>
-    <div class="card">
-        <div class="card-title"><span>📋</span> Список нотаток</div>
-        <div id="notesList">Натисніть "Оновити"</div>
-        <button onclick="getNotes()" style="margin-top: 12px;">🔄 Оновити список</button>
-    </div>
-</div>
-
-<!-- Вкладка Система -->
-<div id="system" class="content">
-    <div class="card">
-        <div class="card-title"><span>📊</span> Моніторинг</div>
-        <p>Натисніть кнопку, щоб отримати графік стану системи.</p>
-        <button onclick="getStats()">📊 Отримати статистику</button>
-    </div>
-</div>
-
-<!-- Вкладка Скрипти -->
-<div id="scripts" class="content">
-    <div class="card">
-        <div class="card-title"><span>📜</span> Доступні скрипти</div>
+        <div class="card-title"><span>📊</span> Системний монітор</div>
         <div class="grid">
-            <button onclick="runScript('main.py')">▶️ main.py</button>
-            <button onclick="runScript('backup.sh')">💾 backup.sh</button>
-            <button onclick="runScript('clean.sh')">🧹 clean.sh</button>
-            <button onclick="runScript('update.sh')">🔄 update.sh</button>
+            <button class="primary" onclick="send('GET_STATS')">📈 Графік</button>
+            <button onclick="send('GET_LOGS')">📋 Логи</button>
         </div>
-        <p style="margin-top: 16px; opacity: 0.7;">Результат з'явиться в чаті.</p>
+    </div>
+    <div class="card">
+        <div class="card-title"><span>📝</span> Блокнот</div>
+        <textarea id="noteInput" rows="2" placeholder="Введіть текст нотатки..."></textarea>
+        <div class="grid">
+            <button class="primary" onclick="saveNote()">💾 Зберегти</button>
+            <button onclick="send('GET_NOTES')">📂 Список</button>
+        </div>
     </div>
 </div>
 
-<!-- Вкладка Консоль -->
-<div id="console" class="content">
+<!-- Секція: Система -->
+<div id="system" class="section">
+    <div class="card">
+        <div class="card-title"><span>⚙️</span> Обслуговування</div>
+        <div class="grid">
+            <button onclick="send('🧹 ОЧИЩЕННЯ')">🧹 Очистити все</button>
+            <button onclick="send('CMD:🚀 ПУСК')">🚀 Пуск бота</button>
+            <button onclick="send('CMD:💀 ВИМКНУТИ')" class="danger">💀 Вимкнути Termux</button>
+            <button onclick="send('CMD:🔄 РЕСТАРТ')">🔄 Рестарт бота</button>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><span>🗑️</span> Очищення</div>
+        <div class="grid">
+            <button onclick="send('RUN_SCRIPT:clean_termux.sh')">📱 Termux</button>
+            <button onclick="send('RUN_SCRIPT:clean_android.sh')">📲 Android</button>
+            <button onclick="send('RUN_SCRIPT:clean_tmp.sh')">📁 Тимчасові</button>
+        </div>
+    </div>
+</div>
+
+<!-- Секція: Інструменти -->
+<div id="tools" class="section">
+    <div class="card">
+        <div class="card-title"><span>🔧</span> Сервіси</div>
+        <div class="grid">
+            <button onclick="send('CMD:🌊 ТОРРЕНТ')">🌊 Torrent</button>
+            <button onclick="send('CMD:📚 ВІКІПЕДІЯ')">📖 Wiki</button>
+            <button onclick="send('CMD:📰 НОВИНИ')">📰 Новини</button>
+            <button onclick="send('CMD:🧠 AI ЧАТ')">🧠 AI Chat</button>
+            <button onclick="send('CMD:⚙️ НАЛАШТУВАННЯ')">⚙️ Налаштування</button>
+            <button onclick="send('CMD:📖 КОМАНДИ')">📖 Команди</button>
+        </div>
+    </div>
+</div>
+
+<!-- Секція: Ігри -->
+<div id="games" class="section">
+    <div class="card">
+        <div class="card-title"><span>🎮</span> PUBG & WoT Blitz</div>
+        <div class="grid">
+            <button onclick="send('RUN_SCRIPT:backup_pubg.sh')">💾 Backup PUBG</button>
+            <button onclick="send('RUN_SCRIPT:restore_pubg.sh')">🔄 Restore PUBG</button>
+            <button onclick="send('RUN_SCRIPT:backup_wot.sh')">💾 Backup WoT</button>
+            <button onclick="send('RUN_SCRIPT:restore_wot.sh')">🔄 Restore WoT</button>
+        </div>
+    </div>
+</div>
+
+<!-- Секція: Консоль -->
+<div id="console" class="section">
     <div class="card">
         <div class="card-title"><span>💻</span> Виконати команду</div>
         <input type="text" id="cmdInput" placeholder="ls -la" value="ls -la">
         <button class="primary" onclick="runCommand()">⚡ Виконати</button>
-    </div>
-    <div class="card">
-        <div class="card-title"><span>📋</span> Останні логи</div>
-        <div id="logsOutput" class="console-output">Натисніть "Отримати логи"</div>
-        <button onclick="getLogs()" style="margin-top: 12px;">📋 Отримати логи</button>
+        <p style="font-size:12px; opacity:0.7; margin-top:8px;">Результат з'явиться в чаті.</p>
     </div>
 </div>
+
+<!-- Статус (опціонально) -->
+<div class="status-bar" id="status">⚡ Готовий до роботи</div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+    tg.backgroundColor = tg.themeParams.bg_color || '#0d1117';
+    tg.headerColor = tg.themeParams.header_bg_color || '#161b22';
 
+    // Перемикання вкладок
     function switchTab(tabId) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-        document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+        document.querySelector(`.nav-item[onclick*="'${tabId}'"]`).classList.add('active');
         document.getElementById(tabId).classList.add('active');
     }
 
-    function sendCommand(cmd) {
+    // Відправка команди
+    function send(cmd) {
+        document.getElementById('status').innerText = `⏳ Надсилаю: ${cmd}...`;
         tg.sendData(cmd);
+        // Через короткий час повертаємо статус (але команда вже пішла)
+        setTimeout(() => {
+            document.getElementById('status').innerHTML = '✅ Команду надіслано!';
+        }, 300);
+        setTimeout(() => {
+            document.getElementById('status').innerHTML = '⚡ Готовий до роботи';
+        }, 2000);
     }
 
-    // Нотатки
+    // Збереження нотатки
     function saveNote() {
         const note = document.getElementById('noteInput').value.trim();
         if (!note) {
             alert('Введіть текст нотатки');
             return;
         }
-        sendCommand('SAVE_NOTE:' + note);
+        send('SAVE_NOTE:' + note);
         document.getElementById('noteInput').value = '';
     }
 
-    function getNotes() {
-        sendCommand('GET_NOTES');
-    }
-
-    // Система
-    function getStats() {
-        sendCommand('GET_STATS');
-    }
-
-    // Скрипти
-    function runScript(name) {
-        sendCommand('RUN_SCRIPT:' + name);
-    }
-
-    // Консоль
+    // Виконання довільної команди
     function runCommand() {
         const cmd = document.getElementById('cmdInput').value.trim();
         if (!cmd) return;
-        // Для простоти надсилаємо як команду CMD:, але можна розширити
-        sendCommand('CMD:' + cmd);
+        // Надсилаємо як CMD: для універсальності
+        send('CMD:' + cmd);
     }
 
-    function getLogs() {
-        sendCommand('GET_LOGS');
-    }
-
-    // Адаптація теми Telegram
-    document.body.style.backgroundColor = tg.themeParams.bg_color || '#0d1117';
-    document.body.style.color = tg.themeParams.text_color || '#c9d1d9';
+    // Автоматичне застосування теми Telegram до кнопок (якщо потрібно)
+    // Але CSS вже використовує змінні теми
 </script>
 </body>
     </html>
